@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"net/smtp"
+	"os"
 	"time"
 
 	"github.com/gin-contrib/cors"
@@ -38,9 +39,9 @@ func main() {
 		message := c.PostForm("your-message")
 
 		// Email configuration (MOVE TO ENV VARIABLES IN PRODUCTION!)
-		from := "mamdouhhazemm@gmail.com"
-		password := "nodh nviw kmln aeet"
-		to := "mamdouhhazemm@gmail.com"
+		from := os.Getenv("SMTP_USER")
+		password := os.Getenv("SMTP_PASSWORD")
+		to := os.Getenv("SMTP_USER")
 		smtpHost := "smtp.gmail.com"
 		smtpPort := "587"
 
@@ -62,14 +63,20 @@ func main() {
 			})
 			return
 		}
-
-		// Redirect to frontend contact form
-		c.Redirect(http.StatusSeeOther, "/index.html#contactForm")
+		// Replace redirect with:
+		c.JSON(http.StatusOK, gin.H{
+			"message": "Email sent successfully!",
+		})
 	})
 
-	// Start server
-	fmt.Println("Listening on :8080...")
-	if err := r.Run(":8080"); err != nil {
+	// Replace the server startup code at the bottom
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080" // Default for local development
+	}
+
+	fmt.Printf("Listening on :%s...\n", port)
+	if err := r.Run(":" + port); err != nil {
 		log.Fatal("Server startup error: ", err)
 	}
 }
